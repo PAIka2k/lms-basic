@@ -8,14 +8,14 @@
 <body>
 <div class="container" style="max-width: 600px">
     <div class="py-5 text-center">
-        <h2>상품 목록</h2>
+        <h2>컨텐츠 목록</h2>
     </div>
     <div class="row">
         <div class="col">
             <button class="btn btn-primary float-end"
                     onclick="location.href='addForm.html'"
                     th:onclick="|location.href='@{/items/add}'|"
-                    type="button">상품
+                    type="button">컨텐츠
                 등록
             </button>
         </div>
@@ -26,7 +26,7 @@
             <thead>
             <tr>
                 <th>ID</th>
-                <th>상품명</th>
+                <th>컨텐츠명</th>
                 <th>가격</th>
                 <th>수량</th>
             </tr>
@@ -36,7 +36,7 @@
                 <td><a href="item.html" th:href="@{/items/{itemId}(itemId=${item.id})}" th:text="${item.id}">회원
                     id</a></td>
                 <td><a href="item.html" th:href="@{/items/{itemId}(itemId=${item.id})}"
-                       th:text="${item.itemName}">상품명</a></td>
+                       th:text="${item.itemName}">컨텐츠명</a></td>
                 <td th:text="${item.price}">10000</td>
                 <td th:text="${item.quantity}">10</td>
             </tr>

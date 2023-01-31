@@ -13,20 +13,20 @@
 <body>
 <div class="container">
     <div class="py-5 text-center">
-        <h2>상품 상세</h2>
+        <h2>컨텐츠 상세</h2>
     </div>
 
     <h3 th:if="${param.status}" th:text="'등록이 완료되었습니다'"></h3>
 
     <div>
-        <label for="itemId">상품 ID</label>
+        <label for="itemId">컨텐츠 ID</label>
         <input type="text" id="itemId" name="itemId" class="form-control"
                value="1" th:value="${item.id}" readonly>
     </div>
     <div>
-        <label for="itemName">상품명</label>
+        <label for="itemName">컨텐츠명</label>
         <input type="text" id="itemName" name="itemName" class="form-control"
-               value="상품A" th:value="${item.itemName}" readonly>
+               value="컨텐츠A" th:value="${item.itemName}" readonly>
     </div>
     <div>
         <label for="price">가격</label>
@@ -44,7 +44,7 @@
             <button class="w-100 btn btn-primary btn-lg"
                     onclick="location.href='editForm.html'"
                     th:onclick="|location.href='@{/items/{itemId}/edit(itemId=${item.id})}'|"
-                    type="button">상품 수정
+                    type="button">컨텐츠 수정
             </button>
         </div>
         <div class="col">
