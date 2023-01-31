@@ -8,13 +8,12 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
 
 @Controller
 @RequestMapping("/items")
 @RequiredArgsConstructor
-public class BasicItemController {
+public class ItemController {
 
     private final ItemRepository itemRepository;
 
@@ -61,15 +60,4 @@ public class BasicItemController {
         itemRepository.update(itemId, item);
         return "redirect:/items/{itemId}";
     }
-
-    /**
-     * 테스트용 데이터 추가
-     */
-    @PostConstruct // 테스트용 데이터
-    public void init() {
-        itemRepository.save(new Item("ItemA", 10000, 10));
-        itemRepository.save(new Item("ItemB", 20000, 20));
-    }
-
-
 }
