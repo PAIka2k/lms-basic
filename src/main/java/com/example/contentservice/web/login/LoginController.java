@@ -2,6 +2,7 @@ package com.example.contentservice.web.login;
 
 import com.example.contentservice.domain.login.LoginService;
 import com.example.contentservice.domain.member.Member;
+import com.example.contentservice.web.session.SessionManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.internal.IgnoreForbiddenApisErrors;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
@@ -21,6 +23,7 @@ import javax.validation.Valid;
 public class LoginController {
 
     private final LoginService loginService;
+    private final SessionManager sessionManager;
 
     @GetMapping("/login")
     public String loginForm(@ModelAttribute("loginForm") LoginForm form) {
@@ -42,15 +45,15 @@ public class LoginController {
 
         //로그인 성공 처리
 
-        //쿠키에 추가적인 시간 정보를 주지 않으면 세션 쿠키 -> 브라우저 종료시 모두 종료
-        Cookie idCookie = new Cookie("memberId", String.valueOf(loginMember.getId()));
-        response.addCookie(idCookie);
+        //세션 관리자를 통해 세션을 생성하고, 회원 데이터를 보관
+        sessionManager.createSession(loginMember, response);
+
         return "redirect:/";
     }
 
     @PostMapping("/logout")
-    public String logout(HttpServletResponse response) {
-        expireCookie(response, "memberId");
+    public String logout(HttpServletRequest request) {
+        sessionManager.expire(request);
         return "redirect:/";
     }
 
