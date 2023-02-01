@@ -33,6 +33,8 @@ public class ItemRepository {
         findItem.setItemName(updateParam.getItemName());
         findItem.setPrice(updateParam.getPrice());
         findItem.setQuantity(updateParam.getQuantity());
+        findItem.setAttachFile(updateParam.getAttachFile());
+        findItem.setImageFiles(updateParam.getImageFiles());
     }
 
     public void clearStore() {

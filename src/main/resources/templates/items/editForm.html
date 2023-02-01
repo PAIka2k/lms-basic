@@ -15,7 +15,7 @@
     <div class="py-5 text-center">
         <h2>컨텐츠 수정 폼</h2>
     </div>
-    <form action="item.html" th:action method="post">
+    <form action="item.html" th:action method="post" enctype="multipart/form-data">
         <div>
             <label for="id">컨텐츠 ID</label>
             <input type="text" id="id" name="id" class="form-control" value="1" th:value="${item.id}"
@@ -23,7 +23,7 @@
         </div>
         <div>
             <label for="itemName">컨텐츠명</label>
-            <input type="text" id="itemName" name="itemName" class="formcontrol"
+            <input type="text" id="itemName" name="itemName" class="form-control"
                    value="컨텐츠A" th:value="${item.itemName}">
         </div>
         <div>
@@ -33,8 +33,18 @@
         </div>
         <div>
             <label for="quantity">수량</label>
-            <input type="text" id="quantity" name="quantity" class="formcontrol"
+            <input type="text" id="quantity" name="quantity" class="form-control"
                    value="10" th:value="${item.quantity}">
+        </div>
+        <div>
+            <label for="attachFile">첨부 파일</label>
+            <input type="file" id="attachFile" name="attachFile"
+                   th:value="${item.attachFile}">
+        </div>
+        <div>
+            <label for="imageFiles">이미지 파일들</label>
+            <input type="file" id="imageFiles" name="imageFiles"
+                   multiple="multiple" th:value="${item.imageFiles}">
         </div>
         <hr class="my-4">
         <div class="row">

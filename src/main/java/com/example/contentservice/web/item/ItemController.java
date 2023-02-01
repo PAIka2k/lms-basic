@@ -1,21 +1,33 @@
 package com.example.contentservice.web.item;
 
+import com.example.contentservice.domain.item.FileStore;
 import com.example.contentservice.domain.item.Item;
 import com.example.contentservice.domain.item.ItemRepository;
+import com.example.contentservice.domain.item.UploadFile;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.util.UriUtils;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Controller
+@Slf4j
 @RequestMapping("/items")
 @RequiredArgsConstructor
 public class ItemController {
 
     private final ItemRepository itemRepository;
+    private final FileStore fileStore;
 
     @GetMapping
     public String items(Model model) {
@@ -38,11 +50,20 @@ public class ItemController {
 
 
     @PostMapping("/add") // 위와 같은 Url이지만, 다른 http method로 기능 구분
-    public String addItemV5(@ModelAttribute Item item, RedirectAttributes redirectAttributes) { // @ModelAttribute도 생략 가능
+    public String addItemV5(@ModelAttribute ItemForm form, RedirectAttributes redirectAttributes) throws IOException { // @ModelAttribute도 생략 가능
 
-        Item savedItem = itemRepository.save(item);// class 명 첫 글자를 소문자를 바꾼 값이 model Attribute에 담김
-//        model.addAttribute("item", item); // 자동으로 추가되므로 생략이 가능함
-        redirectAttributes.addAttribute("itemId", savedItem.getId());
+        UploadFile attachFile = fileStore.storeFile(form.getAttachFile());
+        List<UploadFile> storeImageFiles = fileStore.storeFiles(form.getImageFiles());
+//데이터베이스에 저장
+        Item item = new Item();
+        item.setItemName(form.getItemName());
+        item.setPrice(form.getPrice());
+        item.setQuantity(form.getQuantity());
+        item.setAttachFile(attachFile);
+        item.setImageFiles(storeImageFiles);
+        itemRepository.save(item);
+
+        redirectAttributes.addAttribute("itemId", item.getId());
         redirectAttributes.addAttribute("status", true);
 
         return "redirect:/items/{itemId}";
@@ -56,8 +77,50 @@ public class ItemController {
     }
 
     @PostMapping("/{itemId}/edit")
-    public String edit(@PathVariable Long itemId, @ModelAttribute Item item) {
+    public String edit(@PathVariable Long itemId, @ModelAttribute ItemForm form) throws IOException {
+        UploadFile attachFile = fileStore.storeFile(form.getAttachFile());
+        List<UploadFile> storeImageFiles = fileStore.storeFiles(form.getImageFiles());
+
+        Item item = new Item();
+        item.setId(form.getItemId());
+        item.setItemName(form.getItemName());
+        item.setPrice(form.getPrice());
+        item.setQuantity(form.getQuantity());
+        item.setAttachFile(attachFile);
+        item.setImageFiles(storeImageFiles);
+
         itemRepository.update(itemId, item);
         return "redirect:/items/{itemId}";
+    }
+
+    @ResponseBody
+    @GetMapping("/images/{filename}")
+    public Resource downloadImage(@PathVariable String filename) throws MalformedURLException {
+        return new UrlResource("file:" + fileStore.getFullPath(filename));
+    }
+
+    @ResponseBody
+    @GetMapping("/attach/{filename}")
+    public Resource showPdf(@PathVariable String filename) throws MalformedURLException {
+        return new UrlResource("file:" + fileStore.getFullPath(filename));
+    }
+
+
+    @GetMapping("/attach/{itemId}")
+    public ResponseEntity<Resource> downloadAttach(@PathVariable Long itemId) throws MalformedURLException {
+        Item item = itemRepository.findById(itemId);
+        String storeFileName = item.getAttachFile().getStoreFileName();
+        String uploadFileName = item.getAttachFile().getUploadFileName();
+
+        UrlResource resource = new UrlResource("file:" + fileStore.getFullPath(storeFileName));
+
+        log.info("uploadFileName={}", uploadFileName);
+
+        String encodedUploadFileName = UriUtils.encode(uploadFileName, StandardCharsets.UTF_8);
+        String contentDisposition = "attachment; filename=\"" + encodedUploadFileName + "\"";
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition)
+                .body(resource);
     }
 }
